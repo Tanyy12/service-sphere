@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'services',
     'bookings',
     'notifications',
-    'payment',
+    'payments',
     'recommendations',
     'analytics',
 ]
@@ -96,6 +96,8 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+AUTH_USER_MODEL = 'users.User'
 
 
 # Password validation
