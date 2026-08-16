@@ -26,3 +26,35 @@ Services with the most bookings
 Provider statistics
 Charts and graphs
 '''
+
+from django.core.management.base import BaseCommand
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+from datetime import timedelta
+import random
+from services.models import Service
+from bookings.models import Booking
+
+User = get_user_model()
+
+class Command(BaseCommand):
+    help = 'Seed sample bookings for dashboard testing'
+
+    def handle(self, *args, **kwargs):
+        customers = User.objects.filter(role='customer')
+        services = Service.objects.all()
+
+        if not customers.exists() or not services.exists():
+            self.stdout.write(self.style.ERROR('Need at least one customer and one service first.'))
+            return
+
+        for i in range(15):
+            Booking.objects.create(
+                customer=random.choice(customers),
+                service=random.choice(services),
+                scheduled_at=timezone.now() + timedelta(days=random.randint(1, 10)),
+                total_amount=random.choice([30, 50, 75, 100]),
+                status=random.choice(['pending', 'confirmed', 'completed']),
+                created_at=timezone.now() - timedelta(days=random.randint(0, 14))
+            )
+        self.stdout.write(self.style.SUCCESS('Seeded 15 sample bookings.'))
