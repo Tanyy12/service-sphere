@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ service.title }}</h2>
+<p>{{ service.description }}</p>
+<p class="fw-bold">${{ service.price }}</p>
+<form id="booking-form">
+  <div class="mb-3">
+    <label>Select date & time</label>
+    <input type="datetime-local" id="scheduled_at" class="form-control" required>
+  </div>
+  <button type="submit" class="btn btn-success">Confirm Booking</button>
+</form>
+<script>
+document.getElementById('booking-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const token = localStorage.getItem('access_token');
+  const res = await fetch('/api/bookings/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify({
+      service: Number('{{ service.pk }}'),
+      scheduled_at: document.getElementById('scheduled_at').value,
+      total_amount: Number('{{ service.price }}')
+    })
+  });
+  if (res.ok) {
+    alert('Booking created!');
+  } else {
+    const err = await res.json();
+    alert('Error: ' + JSON.stringify(err));
+  }
+});
+</script>
+{% endblock %}

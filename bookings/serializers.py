@@ -7,3 +7,8 @@ class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = '__all__'
+
+    def validate(self, data):
+        instance = Booking(**data)
+        instance.clean()
+        return data

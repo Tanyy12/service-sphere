@@ -1,9 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets, permissions
 from .models import Category, Service
 from .serializers import CategorySerializer, ServiceSerializer
 
 # Create your views here.
+
+# DRF API VIEWS
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -17,3 +19,14 @@ class ServiceViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(provider=self.request.user)
+
+
+# TEMPLATE RENDERED PAGES
+
+def service_list(request):
+    services = Service.objects.filter(is_available=True)
+    return render(request, 'services/service_list.html', {'services': services})
+
+def service_detail(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+    return render(request, 'services/service_detail.html', {'service': service})
