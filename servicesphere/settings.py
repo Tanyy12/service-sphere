@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',                # MUST be first in the list — before django.contrib.staticfiles
     'django.contrib.staticfiles',
 
     'rest_framework',
@@ -95,6 +96,18 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'servicesphere.wsgi.application'
+
+
+ASGI_APPLICATION = 'servicesphere.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],     # your Docker Redis, published to host
+        },
+    },
+}
 
 
 # Database
@@ -145,6 +158,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 
 # Email

@@ -10,11 +10,16 @@
         <nav class="navbar navbar-dark bg-dark">
             <div class="container">
                 <a class="navbar-brand" href="/">ServiceSphere</a>
+                <span class="text-white position-relative">
+                    🔔 <span id="notif-badge" class="badge bg-danger d-none">0</span>
+                </span>
             </div>
         </nav>
         <div class="container mt-4">
             {% block content %}
             {% endblock %}
         </div>
+        {% load static %}
+        <script src="{% static 'js/notifications.js' %}"></script>
     </body>
 </html>
