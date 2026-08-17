@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,6 +29,7 @@ urlpatterns = [
 ]
 
 
-# Serve static files manually — needed because Daphne doesn't auto-serve them like runserver does
+
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+    #urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])     # Serve static files manually — needed because Daphne doesn't auto-serve them like runserver does
+    urlpatterns += staticfiles_urlpatterns()    ## Serve ALL static files (yours + admin's + any installed app's) in development
