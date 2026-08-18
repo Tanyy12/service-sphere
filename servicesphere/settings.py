@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 from pathlib import Path
 
 from decouple import config
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,6 +34,11 @@ SECRET_KEY = 'django-insecure-t^9+jbw4d65u&&8wv*n*@bvnv)1pwbq4uo4t!2pnoj$_ie9pa4
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+# Extend the token lifetime for smoother testing by 2 hrs
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
+}
 
 
 # Application definition
@@ -105,6 +111,8 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             "hosts": [('127.0.0.1', 6379)],     # your Docker Redis, published to host
+            #"capacity": 1500,
+            #"expiry": 10,
         },
     },
 }
@@ -169,3 +177,9 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+# Paypal
+
+PAYPAL_CLIENT_ID = config('PAYPAL_CLIENT_ID')
+PAYPAL_CLIENT_SECRET = config('PAYPAL_CLIENT_SECRET')
+PAYPAL_MODE = config('PAYPAL_MODE', default='sandbox')

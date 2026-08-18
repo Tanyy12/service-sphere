@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets, permissions
 from .models import Category, Service
 from .serializers import CategorySerializer, ServiceSerializer
+from django.conf import settings
 
 # Create your views here.
 
@@ -29,4 +30,7 @@ def service_list(request):
 
 def service_detail(request, pk):
     service = get_object_or_404(Service, pk=pk)
-    return render(request, 'services/service_detail.html', {'service': service})
+    return render(request, 'services/service_detail.html', {
+        'service': service,
+        'paypal_client_id': settings.PAYPAL_CLIENT_ID
+        })

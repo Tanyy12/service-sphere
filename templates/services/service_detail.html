@@ -10,28 +10,76 @@
   </div>
   <button type="submit" class="btn btn-success">Confirm Booking</button>
 </form>
+
+<div id="paypal-button-container" class="mt-3"></div>
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD"></script>
 <script>
-document.getElementById('booking-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
+(function () {  
+  let currentBookingId = null;
   const token = localStorage.getItem('access_token');
-  const res = await fetch('/api/bookings/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-    body: JSON.stringify({
-      service: Number('{{ service.pk }}'),
-      scheduled_at: document.getElementById('scheduled_at').value,
-      total_amount: Number('{{ service.price }}')
-    })
+    
+  document.getElementById('booking-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    //const token = localStorage.getItem('access_token');
+    const res = await fetch('/api/bookings/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({
+        service: Number('{{ service.pk }}'),
+        scheduled_at: document.getElementById('scheduled_at').value,
+        total_amount: Number('{{ service.price }}')
+      })
+    });
+    if (res.ok) {
+      const booking = await res.json();
+      currentBookingId = booking.id;
+      console.log('Booking created with ID : ', currentBookingId);
+      alert('Booking created!');
+      renderPayPalButton();
+    } else {
+      const err = await res.json();
+      alert('Error: ' + JSON.stringify(err));
+    }
   });
-  if (res.ok) {
-    alert('Booking created!');
-  } else {
-    const err = await res.json();
-    alert('Error: ' + JSON.stringify(err));
-  }
-});
+
+  function renderPayPalButton() {
+    paypal.Buttons({
+      createOrder: async () => {
+        const res = await fetch('/api/payments/create-order/',{
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+          body: JSON.stringify({ booking_id: currentBookingId})
+        });
+        const data = await res.json();
+        console.log('create-order response: ', res.status, data);
+
+        if (!res.ok || !data.order_id) {
+          alert('Failed to create PayPal order: ' + JSON.stringify(data));
+          throw new Error('Failed to create order');
+        }
+
+        return data.order_id;
+      },
+
+      onApprove: async (data) => {
+        const res = await fetch('/api/payments/capture-order/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ order_id: data.orderID })
+      });
+
+      const result = await res.json();
+      if (result.status === 'success') {
+        alert('Payment successful! Booking confirmed.');
+      } else {
+        alert('Payment failed.');
+      }
+    }
+  }).render('#paypal-button-container');
+}
+})();
 </script>
 {% endblock %}
