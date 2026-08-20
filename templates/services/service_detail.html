@@ -12,6 +12,26 @@
 </form>
 
 <div id="paypal-button-container" class="mt-3"></div>
+
+{% if recommended_services %}
+<hr class="mt-4">
+<h4>You might also like</h4>
+<div class="row">
+  {% for rec in recommended_services %}
+  <div class="col-md-4 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">{{ rec.title }}</h6>
+        <p class="card-text">{{ rec.description|truncatewords:12 }}</p>
+        <p class="fw-bold">${{ rec.price }}</p>
+        <a href="{% url 'service-detail' rec.pk %}" class="btn btn-outline-primary btn-sm">View</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
 <script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD"></script>
 <script>
 (function () {  
@@ -81,5 +101,6 @@
   }).render('#paypal-button-container');
 }
 })();
+
 </script>
 {% endblock %}

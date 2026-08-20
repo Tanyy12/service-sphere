@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from services.models import Service
@@ -33,6 +34,17 @@ def get_recommendations(service_id, top_n=5):
 
     # Compute similarity between all services
     similarity_matrix = cosine_similarity(tfidf_matrix)
+
+
+    # Normalize price differences into a similarity boost
+    prices = df['price'].values
+    price_diff_matrix = np.abs(prices[:, None] - prices[None, :])
+    max_diff = price_diff_matrix.max() if price_diff_matrix.max() > 0 else 1
+    price_similarity = 1 - (price_diff_matrix / max_diff)
+
+    # Blend text similarity and price similarity (weighted 70/30)
+    combined_similarity = (0.7 * similarity_matrix) + (0.3 * price_similarity)
+
 
     # Find the row index for our target service
     idx = df.index[df['id'] == service_id][0]

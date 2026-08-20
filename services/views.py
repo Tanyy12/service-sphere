@@ -3,6 +3,7 @@ from rest_framework import viewsets, permissions
 from .models import Category, Service
 from .serializers import CategorySerializer, ServiceSerializer
 from django.conf import settings
+from recommendations.engine import get_recommendations
 
 # Create your views here.
 
@@ -34,3 +35,12 @@ def service_detail(request, pk):
         'service': service,
         'paypal_client_id': settings.PAYPAL_CLIENT_ID
         })
+
+def service_detail(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+    recommended = get_recommendations(service.pk)
+    return render(request, 'services/service_detail.html', {
+        'service': service,
+        'paypal_client_id': settings.PAYPAL_CLIENT_ID,
+        'recommended_services': recommended
+    })
